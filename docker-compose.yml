@@ -1,0 +1,46 @@
+version: '3'
+services:
+
+  #flask service
+  user_grpc:
+    build:
+      context: ./user_grpc
+    image: user_grpc
+    container_name: user_grpc
+    restart: unless-stopped
+    environment:
+      - MYSQL_HOST=192.168.99.100
+      - MYSQL_USER=dev
+      - MYSQL_PASSWORD=password
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=database
+    ports:
+      - 8000:8000
+    working_dir: /app
+    volumes:
+      - ./user_grpc:/user_grpc
+    networks:
+      - foundation-network
+
+  #flask mysql service
+  mysql:
+    build:
+      context: ./mysql
+    image: flask-app-mysql
+    container_name: flask-app-mysql
+    env_file:
+      - ./mysql/.env
+    ports:
+      - 3306:3306
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - foundation-network
+
+networks:
+  foundation-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local
